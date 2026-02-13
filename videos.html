@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>動画ギャラリー | AI着物スタジオ</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .modal {
+      display: none;
+    }
+    .modal.active {
+      display: flex;
+    }
+  </style>
+</head>
+<body class="bg-white font-serif">
+
+  <!-- ヘッダー -->
+  <header class="bg-gradient-to-r from-red-800 to-yellow-800 text-white p-6 shadow">
+    <div class="max-w-6xl mx-auto flex justify-between items-center">
+      <h1 class="text-2xl font-bold">AI着物スタジオ</h1>
+      <a href="index.html" class="hover:text-yellow-200">ホームに戻る</a>
+    </div>
+  </header>
+
+  <!-- 動画一覧 -->
+  <section class="max-w-6xl mx-auto py-16 px-6">
+    <h2 class="text-3xl font-bold text-center mb-10">動画ギャラリー</h2>
+    <div class="grid md:grid-cols-3 gap-8">
+      
+      <!-- 動画1 -->
+      <div class="relative cursor-pointer" onclick="openModal('https://www.youtube.com/embed/waQ6EvI9YKY')">
+        <img src="https://img.youtube.com/vi/waQ6EvI9YKY/hqdefault.jpg" 
+             alt="動画サムネイル1" 
+             class="w-full rounded shadow">
+        <div class="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center opacity-0 hover:opacity-100 transition">
+          <span class="text-white text-lg">▶ 再生</span>
+        </div>
+        <p class="text-center mt-2">動画紹介 1</p>
+      </div>
+
+      <!-- 動画2 -->
+      <div class="relative cursor-pointer" onclick="openModal('https://www.youtube.com/embed/XnafMoN3Sf4')">
+        <img src="https://img.youtube.com/vi/XnafMoN3Sf4/hqdefault.jpg" 
+             alt="動画サムネイル2" 
+             class="w-full rounded shadow">
+        <div class="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center opacity-0 hover:opacity-100 transition">
+          <span class="text-white text-lg">▶ 再生</span>
+        </div>
+        <p class="text-center mt-2">動画紹介 2</p>
+      </div>
+
+      <!-- 動画3 -->
+      <div class="relative cursor-pointer" onclick="openModal('https://www.youtube.com/embed/pvcoHstTDc8')">
+        <img src="https://img.youtube.com/vi/pvcoHstTDc8/hqdefault.jpg" 
+             alt="動画サムネイル3" 
+             class="w-full rounded shadow">
+        <div class="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center opacity-0 hover:opacity-100 transition">
+          <span class="text-white text-lg">▶ 再生</span>
+        </div>
+        <p class="text-center mt-2">動画紹介 3</p>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- モーダル（拡大再生用） -->
+  <div id="videoModal" class="modal fixed inset-0 bg-black bg-opacity-80 items-center justify-center z-50">
+    <div class="relative w-full max-w-4xl">
+      <button onclick="closeModal()" class="absolute -top-10 right-0 text-white text-3xl font-bold">&times;</button>
+      <iframe id="modalVideo" class="w-full h-[500px] rounded shadow"
+              src=""
+              frameborder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowfullscreen>
+      </iframe>
+    </div>
+  </div>
+
+  <!-- フッター -->
+  <footer class="bg-gray-900 text-gray-300 text-center py-6 mt-16">
+    <p>&copy; 2025 AI着物スタジオ All Rights Reserved.</p>
+  </footer>
+
+  <!-- JS -->
+  <script>
+    // モーダルを開く
+    function openModal(src) {
+      const modal = document.getElementById('videoModal');
+      const modalVideo = document.getElementById('modalVideo');
+      modal.classList.add('active');
+      modalVideo.src = src + "?autoplay=1"; // 自動再生
+    }
+
+    // モーダルを閉じる
+    function closeModal() {
+      const modal = document.getElementById('videoModal');
+      const modalVideo = document.getElementById('modalVideo');
+      modal.classList.remove('active');
+      modalVideo.src = ""; // 停止
+    }
+  </script>
+
+</body>
+</html>
+

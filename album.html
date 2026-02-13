@@ -1,0 +1,275 @@
+<!doctype html>
+<html lang="ja">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>シンプル Web アルバム</title>
+  <style>
+    :root {
+      --bg: #111;
+      --fg: #fff;
+      --accent: rgba(255, 255, 255, 0.12)
+    }
+
+    html,
+    body {
+      height: 100%;
+      margin: 0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
+      background: var(--bg);
+      color: var(--fg)
+    }
+
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 50
+    }
+
+    .viewer {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: calc(100vh - 72px);
+      padding: 20px;
+      box-sizing: border-box
+    }
+
+    .frame {
+      position: relative;
+      max-width: 1000px;
+      width: 100%;
+      height: 80vh;
+      background: linear-gradient(180deg, #222, #111);
+      border-radius: 12px;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center
+    }
+
+    .frame img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+      display: block;
+      opacity: 0;
+      transition: opacity .35s ease, transform .35s ease
+    }
+
+    .frame img.visible {
+      opacity: 1;
+      transform: translateY(0)
+    }
+
+    .frame img.hidden {
+      transform: translateY(8px)
+    }
+
+    /* controls */
+    .btn {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(0, 0, 0, 0.35);
+      border: 1px solid var(--accent);
+      color: var(--fg);
+      backdrop-filter: blur(4px);
+      border-radius: 8px;
+      padding: 10px 12px;
+      cursor: pointer
+    }
+
+    .btn:active {
+      transform: translateY(-50%) scale(.98)
+    }
+
+    .prev {
+      left: 12px
+    }
+
+    .next {
+      right: 12px
+    }
+
+    /* bottom bar */
+    .bar {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      background: linear-gradient(180deg, transparent, rgba(0, 0, 0, 0.45));
+    }
+
+    .counter {
+      font-size: 14px;
+      opacity: .9
+    }
+
+    .thumbs {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      overflow: auto;
+      padding-bottom: 6px
+    }
+
+    .thumbs img {
+      height: 48px;
+      border-radius: 6px;
+      object-fit: cover;
+      opacity: .6;
+      cursor: pointer;
+      border: 2px solid transparent
+    }
+
+    .thumbs img.active {
+      opacity: 1;
+      border-color: rgba(255, 255, 255, 0.12)
+    }
+
+    /* responsive */
+    @media (max-width:640px) {
+      .frame {
+        height: 70vh;
+        border-radius: 10px
+      }
+
+      .btn {
+        padding: 8px
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- ヘッダー -->
+  <header class="bg-gradient-to-r from-red-800 to-yellow-800 text-white p-6 shadow">
+    <div class="max-w-6xl mx-auto flex justify-between items-center">
+      <h1 class="text-2xl font-bold">AI着物スタジオ</h1>
+      <a href="index.html" class="hover:text-yellow-200">ホームに戻る</a>
+    </div>
+  </header>
+
+  <div class="viewer">
+    <div class="frame" id="frame">
+      <!-- 画像はJSで差し替えます -->
+      <img id="photo" class="hidden" src="" alt="photo" draggable="false">
+
+      <button class="btn prev" id="prev" aria-label="前へ">◀</button>
+      <button class="btn next" id="next" aria-label="次へ">▶</button>
+
+      <div class="bar">
+        <div class="counter" id="counter">0 / 0</div>
+        <div class="thumbs" id="thumbs" aria-hidden="true"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ----- ここを編集して画像ファイルを並べてください -----
+    const images = [
+      'images/hr251.jpg',
+      'images/hr257.jpg',
+      'images/hr256.jpg',
+      'images/hr235a.png',
+      'images/hr251f.png',
+      'images/hr260.png'
+    ];
+    // ----------------------------------------------------
+
+    const photo = document.getElementById('photo');
+    const prevBtn = document.getElementById('prev');
+    const nextBtn = document.getElementById('next');
+    const counter = document.getElementById('counter');
+    const thumbsEl = document.getElementById('thumbs');
+    const frame = document.getElementById('frame');
+
+    let index = 0;
+
+    const preloaded = [];
+    images.forEach((src) => {
+      const i = new Image(); i.src = src; preloaded.push(i);
+    });
+
+    function updateCounter() {
+      counter.textContent = `${index + 1} / ${images.length}`;
+    }
+
+    function showImage(i) {
+      if (!images.length) return;
+      index = (i + images.length) % images.length;
+      photo.classList.remove('visible');
+      photo.classList.add('hidden');
+      setTimeout(() => {
+        photo.src = images[index];
+        photo.alt = `photo ${index + 1}`;
+        if (preloaded[index] && preloaded[index].complete) {
+          requestAnimationFrame(() => photo.classList.add('visible'));
+        } else {
+          photo.onload = () => requestAnimationFrame(() => photo.classList.add('visible'));
+        }
+      }, 60);
+
+      const thumbs = thumbsEl.querySelectorAll('img');
+      thumbs.forEach((t, idx) => t.classList.toggle('active', idx === index));
+
+      updateCounter();
+    }
+
+    function next() { showImage(index + 1); }
+    function prev() { showImage(index - 1); }
+
+    nextBtn.addEventListener('click', next);
+    prevBtn.addEventListener('click', prev);
+
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight') next();
+      if (e.key === 'ArrowLeft') prev();
+      if (e.key === ' ') { e.preventDefault(); next(); }
+    });
+
+    function buildThumbs() {
+      thumbsEl.innerHTML = '';
+      images.forEach((src, idx) => {
+        const t = document.createElement('img');
+        t.src = src;
+        t.alt = `thumb ${idx + 1}`;
+        t.addEventListener('click', () => showImage(idx));
+        thumbsEl.appendChild(t);
+      });
+    }
+
+    let touchStartX = null;
+    frame.addEventListener('touchstart', (e) => { touchStartX = e.changedTouches[0].clientX; });
+    frame.addEventListener('touchend', (e) => {
+      if (touchStartX === null) return;
+      const dx = e.changedTouches[0].clientX - touchStartX;
+      if (Math.abs(dx) > 40) { dx < 0 ? next() : prev(); }
+      touchStartX = null;
+    });
+
+    let zoomed = false;
+    frame.addEventListener('dblclick', () => {
+      zoomed = !zoomed;
+      photo.style.transform = zoomed ? 'scale(1.6)' : 'scale(1)';
+      photo.style.transition = 'transform .3s ease';
+    });
+
+    function init() {
+      buildThumbs();
+      if (images.length) showImage(0);
+      else { counter.textContent = '0 / 0'; photo.alt = '画像がありません'; }
+    }
+
+    init();
+  </script>
+</body>
+
+</html>
